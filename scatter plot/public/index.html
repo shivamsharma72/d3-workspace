@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Javascript arrays</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+
+      .tick text {
+        font-size: 15px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <script src="bundle.js"></script>
+    <script>
+      const { csv, select, scaleLinear, extent, axisLeft, axisBottom } = d3; // this is equal to const csv = d3.csv ;
+      // above is the ES6 structure
+      //   console.log(d3);
+
+      const csvurl = [
+        "https://gist.githubusercontent.com",
+        "/curran",
+        "/a08a1080b88344b0c8a7/raw/0e7a9b0a5d22642a06d3d5b9bcbad9890c8ee534",
+        "/iris.csv",
+      ].join("");
+
+      const parseRow = (d) => {
+        d.sepal_length = +d.sepal_length;
+        d.sepal_width = +d.sepal_width;
+        d.petal_length = +d.petal_length;
+        d.petal_width = +d.petal_width;
+        return d;
+      };
+
+      const xValue = (d) => d.petal_length;
+      const yValue = (d) => d.sepal_length;
+
+      const margin = {
+        top: 50,
+        right: 50,
+        bottom: 50,
+        left: 50,
+      };
+
+      const width = innerWidth;
+      const height = innerHeight;
+      const svg = select("body")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+      const main = async () => {
+        try {
+          const data = await csv(csvurl, parseRow);
+
+          const x = scaleLinear()
+            .domain(extent(data, xValue))
+            //.domain([d3.min(data, xValue), d3.max(data, xValue)])
+            .range([margin.left, width - margin.right]);
+
+          const y = scaleLinear()
+            .domain(extent(data, yValue))
+            .range([height - margin.bottom, margin.top]);
+
+          const marks = data.map((d) => ({
+            x: x(xValue(d)),
+            y: y(yValue(d)),
+          }));
+          console.log(marks);
+          //   console.log(y.range());
+          //   console.log(data);
+
+          svg
+            .selectAll("circle")
+            .data(marks)
+            .join("circle")
+            .attr("cx", (d) => d.x)
+            .attr("cy", (d) => d.y)
+            .attr("r", 5);
+
+          svg
+            .append("g")
+            .attr(`transform`, `translate(${margin.left},0)`)
+            .call(axisLeft(y));
+
+          svg
+            .append("g")
+            .attr(`transform`, `translate(0,${height - margin.top})`)
+            .call(axisBottom(x));
+        } catch (error) {
+          console.log(`ERROR:${error}`);
+        }
+      };
+
+      main();
+    </script>
+  </body>
+</html>
