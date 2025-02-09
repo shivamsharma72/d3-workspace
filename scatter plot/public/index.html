@@ -70,6 +70,7 @@
           const marks = data.map((d) => ({
             x: x(xValue(d)),
             y: y(yValue(d)),
+            title: `(${xValue(d)},${yValue(d)})`,
           }));
           console.log(marks);
           //   console.log(y.range());
@@ -81,7 +82,9 @@
             .join("circle")
             .attr("cx", (d) => d.x)
             .attr("cy", (d) => d.y)
-            .attr("r", 5);
+            .attr("r", 5)
+            .append("title")
+            .text((d) => d.title);
 
           svg
             .append("g")
